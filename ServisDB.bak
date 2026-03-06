@@ -1,4 +1,0 @@
-## Veritabanı Kurulumu
-1. SQL Server Management Studio veya MSSQL üzerinde:
-   `database/AracServisDB.bak` restore edin
-2. `appsettings.json` içindeki connection string’i kendi bilgisayarınıza göre değiştirin
