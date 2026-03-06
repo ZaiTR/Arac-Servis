@@ -1,0 +1,104 @@
+﻿@page
+@model AracServis.Pages.Admin.AdminLoginModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Giriş</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #121212;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            }
+
+        .login-container {
+            background: #1e1e1e;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.6);
+            width: 300px;
+            }
+
+        h2 {
+            text-align: center;
+            color: #f59e0b;
+            margin-bottom: 1.5rem;
+            }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border-radius: 6px;
+            border: 1px solid #333;
+            background: #121212;
+            color: #fff;
+            box-sizing: border-box;
+            }   
+
+        button {
+            width: 100%;
+            padding: 0.8rem;
+            background: #f59e0b;
+            border: none;
+            border-radius: 6px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            }
+
+        button:hover {
+             background: #d97706;
+            }
+
+        #mesaj {
+            text-align: center;
+            margin-top: 1rem;
+            color: #ef4444;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        label input {
+        margin-right: 0.5rem;
+            }
+    </style>
+    </head>
+    <body>
+    <div class="login-container">
+        <h2>Admin Giriş</h2>
+
+        <form method="post">
+            <input asp-for="KullaniciAdi" type="text" placeholder="Kullanıcı Adı" required />
+            <input asp-for="Sifre" type="password" placeholder="Şifre" required />
+            <label>
+                <input asp-for="BeniHatirla" type="checkbox" /> Beni Hatırla
+            </label>
+            <button type="submit">Giriş Yap</button>
+        </form>
+
+        @if (!string.IsNullOrEmpty(Model.Hata))
+        {
+            <p id="mesaj">@Model.Hata</p>
+        }
+    </div>
+
+</body>
+</html>

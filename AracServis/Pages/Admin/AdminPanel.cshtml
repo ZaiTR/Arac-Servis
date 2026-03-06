@@ -1,0 +1,825 @@
+@page
+@model AracServis.Pages.Admin.AdminPanelModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+
+    <link rel="stylesheet" href="@Url.Content("~/lib/bootstrap/dist/css/bootstrap.min.css")" />
+    <link href="https://cdn.jsdelivr.net/npm/@@sweetalert2/theme-dark@4/dark.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #121212;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+
+        .admin-header {
+            background: #1e1e1e;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #2c2c2c;
+        }
+
+        .admin-title {
+            color: #f59e0b;
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            background: #ef4444;
+            border: none;
+            padding: 8px 16px;
+            color: white;
+            border-radius: 8px;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 40px auto;
+        }
+
+        .card-dark {
+            background: #1e1e1e;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: #f59e0b;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            color: #bbb;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            background: #181818;
+            border: 1px solid #333;
+            color: white;
+            border-radius: 10px;
+        }
+
+        .form-control:focus {
+            background: #181818;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+            color: white;
+        }
+
+        .btn-save {
+            background: #f59e0b;
+            border: none;
+            color: black;
+            font-weight: 600;
+            padding: 12px;
+            border-radius: 12px;
+        }
+
+        .btn-save:hover {
+            background: #ffb020;
+        }
+
+        /* Modern Table Design */
+        .table-responsive {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            margin-bottom: 0;
+        }
+
+        .table thead {
+            background: linear-gradient(45deg, #f59e0b, #d97706);
+            color: #000;
+        }
+
+        .table th {
+            padding: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            border: none;
+            text-align: left;
+            color: #000;
+        }
+
+        .table td {
+            padding: 16px;
+            border-bottom: 1px solid #2c2c2c;
+            vertical-align: middle;
+            transition: background-color 0.2s;
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table tbody tr:hover {
+            background-color: #2a2a2a;
+        }
+
+        .table tbody tr:hover td {
+            color: #fff;
+        }
+
+        .table-dark {
+            --bs-table-bg: transparent;
+            /* Override Bootstrap var if present */
+        }
+
+        /* Custom Grid System for Missing Bootstrap */
+        /* Robust CSS Grid System */
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @@media (min-width: 768px) {
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @@media (min-width: 992px) {
+            .grid-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-control {
+            width: 100% !important;
+            box-sizing: border-box;
+        }
+
+        /* Tab System */
+        .tab-container {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #2c2c2c;
+            padding-bottom: 0;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: #888;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: #f59e0b;
+        }
+
+        .tab-btn.active {
+            color: #f59e0b;
+            border-bottom-color: #f59e0b;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #1e1e1e;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card .icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #f59e0b;
+        }
+
+        .stat-card .label {
+            color: #999;
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+
+        /* Badges */
+        .badge-bekliyor {
+            background: rgba(234, 179, 8, 0.15);
+            color: #eab308;
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .badge-devam {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .badge-tamamlandi {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .badge-onaylandi {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .badge-kontrol {
+            background: rgba(168, 85, 247, 0.15);
+            color: #a855f7;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="admin-header">
+        <div class="admin-title">
+            Admin Paneli
+            <span style="font-size:14px;color:#bbb;">(@Model.KullaniciAdi)</span>
+        </div>
+
+        <form method="post" asp-page-handler="Logout">
+            <button type="submit" class="logout-btn">Çıkış Yap</button>
+        </form>
+    </div>
+
+    <div class="admin-container">
+
+        <!-- Tab Navigasyonu -->
+        <div class="tab-container">
+            <button class="tab-btn active" onclick="showTab('dashboard', this)">📊 Kartlar</button>
+            <button class="tab-btn" onclick="showTab('randevular', this)">📅 Randevular</button>
+
+            <button class="tab-btn" onclick="showTab('servis', this)">🔧 Servis Kayıtları</button>
+            <button class="tab-btn" onclick="showTab('personel', this)">👥 Personeller</button>
+            <button class="tab-btn" onclick="showTab('pozisyonlar', this)">🏷️ Pozisyonlar</button>
+        </div>
+
+        <!-- ========== DASHBOARD ========== -->
+        <div id="dashboard" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="icon">📅</div>
+                    <div class="number">@Model.ToplamRandevu</div>
+                    <div class="label">Toplam Randevu</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon">⏳</div>
+                    <div class="number">@Model.BekleyenRandevu</div>
+                    <div class="label">Bekleyen</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon">🔄</div>
+                    <div class="number">@Model.DevamEdenRandevu</div>
+                    <div class="label">Devam Eden</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon">✅</div>
+                    <div class="number">@Model.TamamlananRandevu</div>
+                    <div class="label">Tamamlanan</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon">🟢</div>
+                    <div class="number">@Model.OnayliRandevu</div>
+                    <div class="label">Onaylanan</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon">🔍</div>
+                    <div class="number">@Model.KontrolRandevu</div>
+                    <div class="label">Kontrol</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon">🚗</div>
+                    <div class="number">@Model.ToplamArac</div>
+                    <div class="label">Toplam Araç</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon">👤</div>
+                    <div class="number">@Model.ToplamMusteri</div>
+                    <div class="label">Toplam Müşteri</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon">🔧</div>
+                    <div class="number">@Model.ToplamServis</div>
+                    <div class="label">Servis Kaydı</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon">💰</div>
+                    <div class="number">@Model.ToplamGelir.ToString("N0") ₺</div>
+                    <div class="label">Toplam Gelir</div>
+                </div>
+            </div>
+
+            <!-- Son Randevular -->
+            <div class="card-dark">
+                <h4 class="section-title">Son Randevular</h4>
+                @if (Model.Randevular.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Müşteri</th>
+                                    <th>Plaka</th>
+                                    <th>Tarih</th>
+                                    <th>Durum</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var r in Model.Randevular.Take(5))
+                                {
+                                    <tr>
+                                        <td>@r.Arac?.Musteri?.AdSoyad</td>
+                                        <td><strong>@r.Arac?.Plaka</strong></td>
+                                        <td>@r.GirisTarihi?.ToString("dd.MM.yyyy")</td>
+                                        <td>
+                                            @if (r.Durum == "Bekliyor")
+                                            {
+                                                <span class="badge-bekliyor">Bekliyor</span>
+                                            }
+                                            else if (r.Durum == "Onaylandi")
+                                            {
+                                                <span class="badge-onaylandi">Onaylandi</span>
+                                            }
+                                            else if (r.Durum == "DevamEdiyor")
+                                            {
+                                                <span class="badge-devam">Devam Ediyor</span>
+                                            }
+                                            else if (r.Durum == "Kontrol")
+                                            {
+                                                <span class="badge-kontrol">Kontrol</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge-tamamlandi">Tamamlandı</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p style="color:#666;text-align:center;padding:20px;">Henüz randevu yok.</p>
+                }
+            </div>
+        </div>
+
+        <!-- ========== RANDEVULAR ========== -->
+        <div id="randevular" class="tab-content">
+            <div class="card-dark">
+                <h4 class="section-title">+ Yeni Randevu Ekle</h4>
+                <form method="post" asp-page-handler="RandevuEkle">
+                    <div class="grid-container">
+                        <div>
+                            <label class="form-label">Müşteri</label>
+                            <select asp-for="YeniRandevuMusteriId" class="form-control" required>
+                                <option value="">- Müşteri Seçiniz -</option>
+                                @foreach (var m in Model.Musteriler)
+                                {
+                                    <option value="@m.Id">@m.AdSoyad</option>
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Plaka</label>
+                            <input asp-for="YeniRandevuPlaka" class="form-control" placeholder="34 ABC 123" required />
+                        </div>
+                        <div>
+                            <label class="form-label">Marka</label>
+                            <input asp-for="YeniRandevuMarka" class="form-control" placeholder="Toyota" required />
+                        </div>
+                        <div>
+                            <label class="form-label">Model</label>
+                            <input asp-for="YeniRandevuModel" class="form-control" placeholder="Corolla" required />
+                        </div>
+                        <div>
+                            <label class="form-label">Giriş Tarihi</label>
+                            <input asp-for="YeniRandevuTarih" type="date" class="form-control" required />
+                        </div>
+                        <div>
+                            <label class="form-label">Kilometre</label>
+                            <input asp-for="YeniRandevuKm" type="number" class="form-control" placeholder="Opsiyonel" />
+                        </div>
+                        <div class="full-width">
+                            <button type="submit" class="btn btn-save w-100">RANDEVU EKLE</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card-dark">
+                <h4 class="section-title">Randevu Listesi</h4>
+                @if (Model.Randevular.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Müşteri</th>
+                                    <th>Plaka</th>
+                                    <th>Marka/Model</th>
+                                    <th>Giriş Tarihi</th>
+                                    <th>Km</th>
+                                    <th>Durum</th>
+                                    <th>İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var r in Model.Randevular)
+                                {
+                                    <tr>
+                                        <td>@r.Id</td>
+                                        <td>@r.Arac?.Musteri?.AdSoyad</td>
+                                        <td><strong>@r.Arac?.Plaka</strong></td>
+                                        <td>@r.Arac?.Marka @r.Arac?.Model</td>
+                                        <td>@r.GirisTarihi?.ToString("dd.MM.yyyy")</td>
+                                        <td>@(r.Km.HasValue ? r.Km.Value.ToString("N0") : "-")</td>
+                                        <td>
+                                            @if (r.Durum == "Bekliyor")
+                                            {
+                                                <span class="badge-bekliyor">Bekliyor</span>
+                                            }
+                                            else if (r.Durum == "Onaylandi")
+                                            {
+                                                <span class="badge-onaylandi">Onaylandi</span>
+                                            }
+                                            else if (r.Durum == "DevamEdiyor")
+                                            {
+                                                <span class="badge-devam">Devam Ediyor</span>
+                                            }
+                                            else if (r.Durum == "Kontrol")
+                                            {
+                                                <span class="badge-kontrol">Kontrol</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge-tamamlandi">Tamamlandı</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <form method="post" asp-page-handler="RandevuSil" style="display:inline;"
+                                                id="randevuSilForm-@r.Id">
+                                                <input type="hidden" name="randevuId" value="@r.Id" />
+                                                <button type="button" class="btn btn-danger btn-sm"
+                                                    onclick="silOnayi('randevuSilForm-@r.Id', 'Bu randevu')">Sil</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p style="color:#666;text-align:center;padding:20px;">Henüz randevu kaydı yok.</p>
+                }
+            </div>
+        </div>
+
+
+
+        <!-- ========== SERVİS KAYITLARI ========== -->
+        <div id="servis" class="tab-content">
+            <div class="card-dark">
+                <h4 class="section-title">Servis Kayıtları</h4>
+                @if (Model.ServisKayitlari.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Müşteri</th>
+                                    <th>Plaka</th>
+                                    <th>Personel</th>
+                                    <th>İşçilik</th>
+                                    <th>Parça</th>
+                                    <th>Toplam</th>
+                                    <th>Durum</th>
+                                    <th>Tarih</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var s in Model.ServisKayitlari)
+                                {
+                                    <tr>
+                                        <td>@s.Id</td>
+                                        <td>@s.Randevu?.Arac?.Musteri?.AdSoyad</td>
+                                        <td><strong>@s.Randevu?.Arac?.Plaka</strong></td>
+                                        <td>@s.Personel?.ad @s.Personel?.soyad</td>
+                                        <td>@s.IscilikTutari.ToString("C2")</td>
+                                        <td>@s.ParcaTutari.ToString("C2")</td>
+                                        <td><strong>@((s.IscilikTutari + s.ParcaTutari).ToString("C2"))</strong></td>
+                                        <td>
+                                            @if (s.Durum == "DevamEdiyor")
+                                            {
+                                                <span class="badge-devam">Devam Ediyor</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge-tamamlandi">Tamamlandı</span>
+                                            }
+                                        </td>
+                                        <td>@s.CreatedAt.ToString("dd.MM.yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p style="color:#666;text-align:center;padding:20px;">Henüz servis kaydı yok.</p>
+                }
+            </div>
+        </div>
+
+        <!-- ========== PERSONELLER ========== -->
+        <div id="personel" class="tab-content">
+
+            <div class="card-dark">
+                <h4 class="section-title">+ Yeni Personel Ekle</h4>
+                <form method="post" asp-page-handler="Ekle">
+                    <div class="grid-container">
+                        <div>
+                            <label class="form-label">Ad</label>
+                            <input asp-for="YeniPersonel.ad" class="form-control" required />
+                        </div>
+                        <div>
+                            <label class="form-label">Soyad</label>
+                            <input asp-for="YeniPersonel.soyad" class="form-control" required />
+                        </div>
+                        <div>
+                            <label class="form-label">Pozisyon</label>
+                            <select asp-for="YeniPersonel.pozisyon" class="form-control" required>
+                                <option value="">-Seçiniz-</option>
+                                @foreach (var p in Model.Pozisyonlar)
+                                {
+                                    <option value="@p.Ad">@p.Ad</option>
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">E-Posta</label>
+                            <input asp-for="YeniPersonel.email" class="form-control" />
+                        </div>
+                        <div>
+                            <label class="form-label">Telefon</label>
+                            <input asp-for="YeniPersonel.telefon" class="form-control" />
+                        </div>
+                        <div>
+                            <label class="form-label">Maaş</label>
+                            <input asp-for="YeniPersonel.maas" type="number" class="form-control" />
+                        </div>
+                        <div>
+                            <label class="form-label">Giriş Şifresi</label>
+                            <input asp-for="YeniPersonel.sifre" class="form-control" required />
+                        </div>
+                        <div class="full-width">
+                            <button type="submit" class="btn btn-save w-100">KAYDET</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card-dark">
+                <h4 class="section-title">Personel Listesi</h4>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Ad Soyad</th>
+                                <th>Pozisyon</th>
+                                <th>İletişim</th>
+                                <th>Maaş</th>
+                                <th>Şifre</th>
+                                <th>İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var p in Model.Personeller)
+                            {
+                                <tr>
+                                    <td>@p.ad @p.soyad</td>
+                                    <td>@p.pozisyon</td>
+                                    <td>
+                                        @p.telefon <br />
+                                        <small class="text-muted">@p.email</small>
+                                    </td>
+                                    <td>@(p.maas.HasValue ? p.maas.Value.ToString("C2") : "-")</td>
+                                    <td>@p.sifre</td>
+                                    <td>
+                                        <form method="post" asp-page-handler="Sil" asp-route-id="@p.id" id="silForm-@p.id">
+                                            <button type="button" class="btn btn-danger btn-sm"
+                                                onclick="silmeOnayi(@p.id)">Sil</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- ========== POZİSYONLAR ========== -->
+        <div id="pozisyonlar" class="tab-content">
+            <div class="card-dark">
+                <h4 class="section-title">+ Yeni Pozisyon Ekle</h4>
+                <form method="post" asp-page-handler="PozisyonEkle">
+                    <div class="grid-container">
+                        <div class="full-width">
+                            <label class="form-label">Pozisyon Adı</label>
+                            <input asp-for="YeniPozisyonAd" class="form-control" placeholder="Ör: Mekanik Usta"
+                                required />
+                        </div>
+                        <div class="full-width">
+                            <button type="submit" class="btn btn-save w-100">KAYDET</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card-dark">
+                <h4 class="section-title">Mevcut Pozisyonlar</h4>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Pozisyon Adı</th>
+                                <th style="text-align: right;">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var p in Model.Pozisyonlar)
+                            {
+                                <tr>
+                                    <td><strong>@p.Ad</strong></td>
+                                    <td style="text-align: right;">
+                                        <form method="post" asp-page-handler="PozisyonSil" asp-route-id="@p.Id"
+                                            id="pozSilForm-@p.Id">
+                                            <button type="button" class="btn btn-danger btn-sm"
+                                                onclick="silOnayi('pozSilForm-@p.Id', '@p.Ad')">Sil</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function showTab(tabName, btn) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function silmeOnayi(personelId) {
+            Swal.fire({
+                title: 'Emin misiniz?',
+                text: "Bu işlem geri alınamaz!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Evet, Sil!',
+                cancelButtonText: 'Vazgeç',
+                background: '#1e1e1e',
+                color: '#fff',
+                iconColor: '#f59e0b'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('silForm-' + personelId).submit();
+                }
+            });
+        }
+
+        function silOnayi(formId, itemAd) {
+            Swal.fire({
+                title: 'Emin misiniz?',
+                text: itemAd + " kalıcı olarak silinecek!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Evet, Sil!',
+                cancelButtonText: 'Vazgeç',
+                background: '#1e1e1e',
+                color: '#fff',
+                iconColor: '#f59e0b'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(formId).submit();
+                }
+            });
+        }
+    <script>
+        @if (TempData["Message"] != null)
+        {
+            <text>
+            Swal.fire({
+                title: '@(TempData["Status"]?.ToString() == "error" ? "Hata!" : "Başarılı!")',
+                text: '@TempData["Message"]',
+                icon: '@(TempData["Status"]?.ToString() == "error" ? "error" : "success")',
+                confirmButtonText: 'Tamam',
+                confirmButtonColor: '#f59e0b',
+                background: '#121212',
+                color: '#fff'
+            });
+            </text>
+        }
+    </script>
+</body>
+</html>

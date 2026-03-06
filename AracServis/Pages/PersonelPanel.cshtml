@@ -1,0 +1,1960 @@
+@page
+@model AracServis.Pages.PersonelPanelModel
+@using System.Globalization
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personel Panel</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* === Animated Background (anasayfa ile ayni) === */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #000000, #121212);
+            z-index: -3;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -2;
+        }
+
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.12;
+            z-index: -1;
+            pointer-events: none;
+            animation: orbFloat 12s ease-in-out infinite alternate;
+        }
+
+        .bg-orb-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #f59e0b, transparent 70%);
+            top: -100px;
+            right: -100px;
+            animation-duration: 14s;
+        }
+
+        .bg-orb-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #3b82f6, transparent 70%);
+            bottom: -80px;
+            left: -80px;
+            animation-duration: 18s;
+            animation-delay: -4s;
+        }
+
+        .bg-orb-3 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, #8b5cf6, transparent 70%);
+            top: 40%;
+            left: 50%;
+            animation-duration: 16s;
+            animation-delay: -8s;
+        }
+
+        @@keyframes orbFloat {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(-20px, 30px) scale(0.95);
+            }
+        }
+
+        /* === Header === */
+        .panel-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(18, 18, 18, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        .panel-header .title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #f59e0b;
+            letter-spacing: 1px;
+        }
+
+        .panel-header .user-info {
+            font-size: 0.9rem;
+            color: #a0a0a0;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: none;
+            padding: 0.5rem 1.2rem;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.5);
+        }
+
+        /* === Container === */
+        .panel-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* === Tabs === */
+        .tab-container {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 0;
+            flex-wrap: wrap; /* Taşma engelleme */
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: #a0a0a0;
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            color: #f59e0b;
+        }
+
+        .tab-btn.active {
+            color: #f59e0b;
+            border-bottom-color: #f59e0b;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* === Cards (glassmorphism) === */
+        .card {
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #f59e0b, transparent);
+            transition: 0.6s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            border-color: rgba(245, 158, 11, 0.3);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+        }
+
+        .card h3 {
+            font-family: 'Poppins', sans-serif;
+            color: #f59e0b;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        /* === Table === */
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: rgba(18, 18, 18, 0.9);
+        }
+
+        thead {
+            background: linear-gradient(45deg, #f59e0b, #d97706);
+        }
+
+        th {
+            padding: 14px 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.78rem;
+            letter-spacing: 0.05em;
+            color: #000;
+            text-align: left;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        tbody tr {
+            transition: background 0.3s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* === Status badges === */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .badge-bekliyor {
+            background: rgba(234, 179, 8, 0.15);
+            color: #eab308;
+            border: 1px solid rgba(234, 179, 8, 0.3);
+        }
+
+        .badge-devam {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .badge-tamamlandi {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .badge-onaylandi {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-kontrol {
+            background: rgba(168, 85, 247, 0.15);
+            color: #a855f7;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        /* === Action buttons === */
+        .action-btn {
+            padding: 5px 12px;
+            border: none;
+            border-radius: 50px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            margin: 2px;
+        }
+
+        .btn-sil {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .btn-sil:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-devam {
+            background: #3b82f6;
+            color: #fff;
+        }
+
+        .btn-devam:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-tamamla {
+            background: #22c55e;
+            color: #fff;
+        }
+
+        .btn-tamamla:hover {
+            background: #16a34a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+        }
+
+        .btn-kontrol-et {
+            background: #f59e0b;
+            color: #000;
+        }
+
+        .btn-kontrol-et:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        /* === Edit Modal Form === */
+        .edit-form-group {
+            margin-bottom: 1rem;
+        }
+
+        .edit-form-group label {
+            display: block;
+            color: #a0a0a0;
+            font-size: 0.82rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .edit-form-group input {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            background: rgba(18, 18, 18, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #e0e0e0;
+            font-size: 0.9rem;
+            transition: border-color 0.3s;
+        }
+
+        .edit-form-group input:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+        }
+
+        .edit-submit-btn {
+            width: 100%;
+            padding: 0.7rem;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border: none;
+            border-radius: 12px;
+            color: #000;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 0.5rem;
+        }
+
+        .edit-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        /* === Checkbox Group === */
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+            margin-top: 0.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            color: #ccc;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .search-container {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.8rem;
+            background: rgba(18, 18, 18, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: #f59e0b;
+            background: rgba(18, 18, 18, 0.8);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            pointer-events: none;
+        }
+
+        .checkbox-item:hover {
+            color: #f59e0b;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #f59e0b;
+            cursor: pointer;
+        }
+
+        /* === Needs Tags === */
+        .needs-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.3rem;
+            justify-content: flex-end;
+        }
+
+        .need-tag {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* === Stats === */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.2rem;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #f59e0b, transparent);
+            transition: 0.6s;
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(245, 158, 11, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+        }
+
+        .stat-card .number {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #f59e0b;
+        }
+
+        .stat-card .label {
+            color: #a0a0a0;
+            font-size: 0.85rem;
+            margin-top: 0.3rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #64748b;
+        }
+
+        /* === Clickable Rows === */
+        tbody tr.clickable-row {
+            cursor: pointer;
+        }
+
+        tbody tr.clickable-row:hover {
+            background: rgba(245, 158, 11, 0.1) !important;
+        }
+
+        /* === Detail Modal === */
+        .detail-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .detail-overlay.show {
+            display: flex;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @@keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .detail-modal {
+            background: rgba(30, 30, 30, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(245, 158, 11, 0.08);
+            animation: slideUp 0.3s ease;
+        }
+
+        .detail-modal .modal-close {
+            position: absolute;
+            top: 14px;
+            right: 18px;
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .detail-modal .modal-close:hover {
+            color: #f59e0b;
+        }
+
+        .detail-modal .modal-title {
+            font-family: 'Poppins', sans-serif;
+            color: #f59e0b;
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            padding-right: 2rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.7rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #888;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: #e0e0e0;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .detail-value .badge {
+            font-size: 0.8rem;
+        }
+
+        @@media (max-width: 768px) {
+            .panel-header {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                padding: 1rem;
+            }
+
+            .tab-btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.8rem;
+            }
+
+            th,
+            td {
+                padding: 10px 12px;
+                font-size: 0.8rem;
+            }
+
+            .detail-modal {
+                width: 95%;
+                padding: 1.5rem;
+            }
+        }
+        /* === Muhasebe Tabs === */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 0;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            background: transparent;
+            border: none;
+            color: #a0a0a0;
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .tab:hover {
+            color: #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .tab.active {
+            color: #f59e0b;
+            border-bottom-color: #f59e0b;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Background Orbs -->
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+
+    <!-- Header -->
+    <div class="panel-header">
+        <div>
+            <span class="title">Personel Paneli</span>
+            <span class="user-info">(@Model.PersonelAdi — <strong
+                    style="color:#f59e0b;">@Model.PersonelPozisyon</strong>)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            @if (Model.PersonelPozisyon == "Depocu")
+            {
+                <div style="position: relative; cursor: pointer;" onclick="toggleNotifications()">
+                    <span style="font-size: 1.5rem;">🔔</span>
+                    @if (Model.Bildirimler.Any())
+                    {
+                        <span style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; font-weight: 700;">@Model.Bildirimler.Count</span>
+                    }
+                    
+                    <div id="notificationPanel" style="display: none; position: absolute; top: 40px; right: 0; width: 300px; background: #1e1e1e; border: 1px solid #f59e0b; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 1000; padding: 1rem; max-height: 400px; overflow-y: auto;">
+                        <h4 style="color: #f59e0b; font-size: 0.9rem; margin-bottom: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Bildirimler</h4>
+                        @if (Model.Bildirimler.Any())
+                        {
+                            @foreach (var b in Model.Bildirimler)
+                            {
+                                <div style="background: rgba(255,255,255,0.05); padding: 0.8rem; border-radius: 8px; margin-bottom: 0.5rem; font-size: 0.8rem;">
+                                    <div style="color: #ddd; margin-bottom: 4px;">@b.Mesaj</div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <small style="color: #666;">@b.CreatedAt.ToString("HH:mm")</small>
+                                        <form method="post" asp-page-handler="BildirimOku">
+                                            <input type="hidden" name="bildirimId" value="@b.Id" />
+                                            <button type="submit" style="background: none; border: none; color: #f59e0b; cursor: pointer; font-weight: 600;">Tamam</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p style="color: #666; font-size: 0.8rem; text-align: center;">Yeni bildirim yok.</p>
+                        }
+                    </div>
+                </div>
+            }
+            <form method="post" asp-page-handler="Logout">
+                <button type="submit" class="logout-btn">Çıkış Yap</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="panel-container">
+
+        <!-- İstatistikler -->
+        <div class="stats-grid">
+            @if (Model.PersonelPozisyon == "Muhasebe")
+            {
+                <div class="stat-card">
+                    <div class="number">@Model.MuhasebeOzet.ToplamGelir.ToString("C2")</div>
+                    <div class="label">Toplam Gelir</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">@((Model.MuhasebeOzet.ToplamGiderParca + Model.MuhasebeOzet.ToplamGiderMaas + Model.MuhasebeOzet.ToplamEkstraGider).ToString("C2"))</div>
+                    <div class="label">Toplam Gider</div>
+                </div>
+                <div class="stat-card" style="border-bottom: 3px solid @(Model.MuhasebeOzet.NetKar >= 0 ? "#22c55e" : "#ef4444");">
+                    <div class="number" style="color: @(Model.MuhasebeOzet.NetKar >= 0 ? "#22c55e" : "#ef4444");">@Model.MuhasebeOzet.NetKar.ToString("C2")</div>
+                    <div class="label">Net Kar</div>
+                </div>
+            }
+            @if (Model.PersonelPozisyon != "Depocu" && Model.PersonelPozisyon != "Muhasebe")
+            {
+                <div class="stat-card">
+                    <div class="number">@Model.Randevular.Count</div>
+                    <div class="label">Toplam Randevu</div>
+                </div>
+            }
+            @if (Model.PersonelPozisyon == "Danışman")
+            {
+                <div class="stat-card">
+                    <div class="number">@Model.Randevular.Count(r => r.Durum == "Bekliyor")</div>
+                    <div class="label">Onay Bekleyen</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">@Model.Randevular.Count(r => r.Durum == "Kontrol")</div>
+                    <div class="label">Kontrol Bekleyen</div>
+                </div>
+            }
+            else if (Model.PersonelPozisyon == "Usta")
+            {
+                <div class="stat-card">
+                    <div class="number">@Model.Randevular.Count(r => r.Durum == "Onaylandi")</div>
+                    <div class="label">Onaylanan</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">@Model.Randevular.Count(r => r.Durum == "DevamEdiyor")</div>
+                    <div class="label">Devam Eden</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">@Model.ServisKayitlari.Count</div>
+                    <div class="label">Servis Kayıtlarım</div>
+                </div>
+            }
+            else if (Model.PersonelPozisyon == "Depocu")
+            {
+                <div class="stat-card">
+                    <div class="number">@Model.Parcalar.Count</div>
+                    <div class="label">Toplam Malzeme</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">@Model.Parcalar.Count(p => p.Stok > 0)</div>
+                    <div class="label">Stokta Olan</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">@Model.Parcalar.Count(p => p.Stok == 0)</div>
+                    <div class="label">Stok Biten</div>
+                </div>
+            }
+        </div>
+
+        <!-- Sekmeler -->
+        <div class="tab-container">
+            @if (Model.PersonelPozisyon == "Depocu")
+            {
+                <button class="tab-btn active" onclick="showTab('stok', event)">Stok Yönetimi</button>
+            }
+            else if (Model.PersonelPozisyon == "Muhasebe")
+            {
+                <button class="tab-btn active" onclick="showTab('finans', event)">Finansal Özet</button>
+                <button class="tab-btn" onclick="showTab('odemeler', event)">Müşteri Ödemeleri</button>
+                <button class="tab-btn" onclick="showTab('bekleyen_odemeler', event)">Bekleyen Ödemeler</button>
+                <button class="tab-btn" onclick="showTab('ekstra_giderler', event)">Ekstra Giderler</button>
+                <button class="tab-btn" onclick="showTab('personeller_tab', event)">Personel Maaşları</button>
+            }
+            else
+            {
+                <button class="tab-btn active" onclick="showTab('randevular', event)">Randevular</button>
+                @if (Model.PersonelPozisyon == "Usta")
+                {
+                    <button class="tab-btn" onclick="showTab('servis', event)">Servis Kayitlarim</button>
+                }
+                @if (AracServis.Pages.PersonelPanelModel.UzmanRoller.Contains(Model.PersonelPozisyon))
+                {
+                    <button class="tab-btn" onclick="showTab('stok', event)">Malzemelerim</button>
+                }
+            }
+        </div>
+        
+        @if (!string.IsNullOrEmpty(Model.KullaniciMesaji))
+        {
+            <div class="card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05);">
+                <p style="color: #e0e0e0; font-size: 0.95rem; display: flex; align-items: center; gap: 0.8rem;">
+                    <span style="font-size: 1.2rem;">ℹ️</span> @Model.KullaniciMesaji
+                </p>
+            </div>
+        }
+
+        <!-- Randevular Sekmesi -->
+        @if (Model.PersonelPozisyon != "Depocu" && Model.PersonelPozisyon != "Muhasebe")
+        {
+        <div id="randevular" class="tab-content active">
+            <div class="card">
+                <h3>Randevu Listesi</h3>
+                @if (Model.Randevular.Any())
+                {
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Musteri</th>
+                                    <th>Plaka</th>
+                                    <th>Marka/Model</th>
+                                    <th>Giris Tarihi</th>
+                                    <th>Durum</th>
+                                    <th>Islem</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var r in Model.Randevular)
+                                {
+                                    <tr class="clickable-row" onclick="showRandevuDetail(this)" data-id="@r.Id"
+                                        data-musteri="@r.Arac?.Musteri?.AdSoyad" data-plaka="@r.Arac?.Plaka"
+                                        data-marka="@r.Arac?.Marka @r.Arac?.Model"
+                                        data-tarih="@r.GirisTarihi?.ToString("dd.MM.yyyy")"
+                                        data-cikis="@(r.CikisTarihi.HasValue ? r.CikisTarihi.Value.ToString("dd.MM.yyyy") : "Henuz yok")"
+                                        data-durum="@r.Durum" data-ihtiyaclar="@r.Ihtiyaclar"
+                                        data-servis-id="@(Model.ServisKayitlari.FirstOrDefault(s => s.RandevuId == r.Id)?.Id ?? 0)"
+                                        data-iscilik="@(Model.ServisKayitlari.FirstOrDefault(s => s.RandevuId == r.Id)?.IscilikTutari ?? 0)">
+                                        <td>@r.Id</td>
+                                        <td>@r.Arac?.Musteri?.AdSoyad</td>
+                                        <td><strong>@r.Arac?.Plaka</strong></td>
+                                        <td>@r.Arac?.Marka @r.Arac?.Model</td>
+                                        <td>@r.GirisTarihi?.ToString("dd.MM.yyyy")</td>
+                                        <td>
+                                            @if (r.Durum == "Bekliyor")
+                                            {
+                                                <span class="badge badge-bekliyor">Bekliyor</span>
+                                            }
+                                            else if (r.Durum == "Onaylandi")
+                                            {
+                                                <span class="badge badge-onaylandi">Onaylandi</span>
+                                            }
+                                            else if (r.Durum == "DevamEdiyor")
+                                            {
+                                                <span class="badge badge-devam">Devam Ediyor</span>
+                                            }
+                                            else if (r.Durum == "Kontrol")
+                                            {
+                                                <span class="badge badge-kontrol">Kontrol</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-tamamlandi">Tamamlandi</span>
+                                            }
+                                        </td>
+                                        <td onclick="event.stopPropagation()">
+                                            @if (Model.PersonelPozisyon == "Danışman")
+                                            {
+                                                @if (r.Durum == "Bekliyor")
+                                                {
+                                                    <form method="post" asp-page-handler="DurumGuncelle" style="display:inline;">
+                                                        <input type="hidden" name="randevuId" value="@r.Id" />
+                                                        <input type="hidden" name="yeniDurum" value="Onaylandi" />
+                                                        <button type="submit" class="action-btn btn-devam">Onayla</button>
+                                                    </form>
+                                                }
+                                                else if (r.Durum == "Kontrol")
+                                                {
+                                                    <form method="post" asp-page-handler="DurumGuncelle" style="display:inline;">
+                                                        <input type="hidden" name="randevuId" value="@r.Id" />
+                                                        <input type="hidden" name="yeniDurum" value="Tamamlandi" />
+                                                        <button type="submit" class="action-btn btn-tamamla">Tamamla</button>
+                                                    </form>
+                                                }
+                                            }
+                                            else if (Model.PersonelPozisyon == "Usta")
+                                            {
+                                                @if (r.Durum == "Onaylandi")
+                                                {
+                                                    <button type="button" class="action-btn btn-kontrol-et"
+                                                        onclick="openEditModal(@r.Id, @(r.Km.HasValue ? r.Km.Value.ToString() : "''"), '@(r.Arac?.SasiNo ?? "")', @(r.Arac?.Yil.HasValue == true ? r.Arac.Yil.Value.ToString() : "''"), '@(r.Ihtiyaclar ?? "")')">Kontrol Et</button>
+                                                }
+                                                else if (r.Durum == "DevamEdiyor")
+                                                {
+                                                    <form method="post" asp-page-handler="DurumGuncelle" style="display:inline;">
+                                                        <input type="hidden" name="randevuId" value="@r.Id" />
+                                                        <input type="hidden" name="yeniDurum" value="Kontrol" />
+                                                        <button type="submit" class="action-btn btn-tamamla">Tamamla</button>
+                                                    </form>
+                                                }
+                                            }
+                                            <button type="button" class="action-btn btn-devam"
+                                                onclick="openRandevuEditModal(@r.Id, '@(r.Arac?.Musteri?.AdSoyad?.Replace("'", "\'" ) ?? "")', '@(r.Arac?.Plaka?.Replace("'", "\'" ) ?? "")', '@(r.Arac?.Marka?.Replace("'", "\'" ) ?? "")', '@(r.Arac?.Model?.Replace("'", "\'" ) ?? "")', '@(r.GirisTarihi?.ToString("yyyy-MM-dd") ?? "")')">Düzenle</button>
+                                            <form method="post" asp-page-handler="RandevuSil" style="display:inline;"
+                                                id="randevuSilForm-@r.Id">
+                                                <input type="hidden" name="randevuId" value="@r.Id" />
+                                                <button type="button" class="action-btn btn-sil"
+                                                    onclick="randevuSilOnayi(@r.Id)">Sil</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <p>Henuz randevu kaydı yok.</p>
+                    </div>
+                }
+            </div>
+        </div>
+        }
+
+
+
+        <!-- ========== STOK YÖNETİMİ / MALZEMELERİM ========== -->
+        @if (Model.PersonelPozisyon == "Depocu" || AracServis.Pages.PersonelPanelModel.UzmanRoller.Contains(Model.PersonelPozisyon))
+        {
+            <div id="stok" class="tab-content @(Model.PersonelPozisyon == "Depocu" ? "active" : "")">
+                <!-- Yeni Malzeme Ekle (Sadece Depocu) -->
+                @if (Model.PersonelPozisyon == "Depocu")
+                {
+                    <div class="card">
+                        <h3>+ Yeni Malzeme Ekle</h3>
+                        <form method="post" asp-page-handler="ParcaEkle">
+                            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;">
+                                <div class="edit-form-group">
+                                    <label>Malzeme Adı</label>
+                                    <input asp-for="YeniParca.ParcaAdi" placeholder="Ör: Yağ Filtresi" required />
+                                </div>
+                                <div class="edit-form-group">
+                                    <label>Alış Fiyatı (₺)</label>
+                                    <input asp-for="YeniParca.AlisFiyat" type="number" step="0.01" placeholder="0.00" required />
+                                </div>
+                                <div class="edit-form-group">
+                                    <label>Satış Fiyatı (₺)</label>
+                                    <input asp-for="YeniParca.BirimFiyat" type="number" step="0.01" placeholder="0.00" required />
+                                </div>
+                                <div class="edit-form-group">
+                                    <label>Stok Miktarı</label>
+                                    <input asp-for="YeniParca.Stok" type="number" placeholder="0" required />
+                                </div>
+                            </div>
+                            <div class="edit-form-group" style="margin-top: 1rem;">
+                                <label>İlgili Pozisyonlar (Araçla İlgilenenler)</label>
+                                <div class="checkbox-group" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">
+                                    <label class="checkbox-item"><input type="checkbox" name="pozisyonlar" value="Usta"> Usta</label>
+                                    <label class="checkbox-item"><input type="checkbox" name="pozisyonlar" value="Mekanik"> Mekanik</label>
+                                    <label class="checkbox-item"><input type="checkbox" name="pozisyonlar" value="Elektrikçi"> Elektrikçi</label>
+                                    <label class="checkbox-item"><input type="checkbox" name="pozisyonlar" value="Kaportacı"> Kaportacı</label>
+                                    <label class="checkbox-item"><input type="checkbox" name="pozisyonlar" value="Boyacı"> Boyacı</label>
+                                </div>
+                            </div>
+                            <button type="submit" class="edit-submit-btn" style="margin-top:1rem;">📦 MALZEME EKLE</button>
+                        </form>
+                    </div>
+                }
+
+                <!-- Stok Listesi -->
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                        <h3 style="margin-bottom: 0;">📦 @(Model.PersonelPozisyon == "Depocu" ? "Stok Listesi" : "Kullanabileceğim Malzemeler")</h3>
+                        <div class="search-container" style="margin-bottom: 0; min-width: 250px;">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="stokSearchInput" class="search-input" placeholder="Malzeme adı ile ara..." onkeyup="filterStokTable()">
+                        </div>
+                    </div>
+                    @if (Model.Parcalar.Any())
+                    {
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Malzeme Adı</th>
+                                        <th>Alış Fiyatı</th>
+                                        <th>Satış Fiyatı</th>
+                                        <th>Stok</th>
+                                        <th>Durum</th>
+                                        <th>İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var p in Model.Parcalar)
+                                    {
+                                        <tr class="@(Model.PersonelPozisyon == "Depocu" ? "clickable-row" : "")" 
+                                            onclick="if('@Model.PersonelPozisyon' == 'Depocu') openStokEditModal(@p.ParcaID, '@p.ParcaAdi.Replace("'", "\\'")', @p.AlisFiyat.ToString("F2", CultureInfo.InvariantCulture), @p.BirimFiyat.ToString("F2", CultureInfo.InvariantCulture), @p.Stok, '@(p.IlgiliPozisyonlar ?? "")')">
+                                            <td>@p.ParcaID</td>
+                                            <td>
+                                                <strong>@p.ParcaAdi</strong>
+                                                <div class="needs-container" style="justify-content: flex-start; margin-top: 4px;">
+                                                    @if (!string.IsNullOrEmpty(p.IlgiliPozisyonlar))
+                                                    {
+                                                        @foreach (var pos in p.IlgiliPozisyonlar.Split(','))
+                                                        {
+                                                            <span class="need-tag" style="font-size: 0.65rem; padding: 1px 5px;">@pos</span>
+                                                        }
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td>@p.AlisFiyat.ToString("C2")</td>
+                                            <td>@p.BirimFiyat.ToString("C2")</td>
+                                            <td>
+                                                @if (p.Stok == 0)
+                                                {
+                                                    <span class="badge" style="background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);">Tükendi</span>
+                                                }
+                                                else if (p.Stok <= 14)
+                                                {
+                                                    <span class="badge badge-bekliyor">@p.Stok (Az)</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge badge-onaylandi">@p.Stok</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (p.Stok == 0)
+                                                {
+                                                    <span class="badge" style="background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);">Stok Yok</span>
+                                                }
+                                                else if (p.Stok <= 14)
+                                                {
+                                                    <span class="badge badge-bekliyor">Kritik</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge badge-tamamlandi">Yeterli</span>
+                                                }
+                                            </td>
+                                            <td onclick="event.stopPropagation()">
+                                                @if (Model.PersonelPozisyon == "Depocu")
+                                                {
+                                                    <button type="button" class="action-btn btn-devam"
+                                                        onclick="openStokEditModal(@p.ParcaID, '@p.ParcaAdi.Replace("'", "\\'")', @p.AlisFiyat.ToString("F2", CultureInfo.InvariantCulture), @p.BirimFiyat.ToString("F2", CultureInfo.InvariantCulture), @p.Stok, '@(p.IlgiliPozisyonlar ?? "")')">Düzenle</button>
+                                                    <form method="post" asp-page-handler="ParcaSil" style="display:inline;" id="parcaSilForm-@p.ParcaID">
+                                                        <input type="hidden" name="parcaId" value="@p.ParcaID" />
+                                                        <button type="button" class="action-btn btn-sil" onclick="parcaSilOnayi(@p.ParcaID)">Sil</button>
+                                                    </form>
+                                                }
+                                                else if (p.Stok == 0 || p.Stok <= 14)
+                                                {
+                                                    <form method="post" asp-page-handler="StokBildir" style="display:inline;">
+                                                        <input type="hidden" name="parcaId" value="@p.ParcaID" />
+                                                        <button type="submit" class="action-btn btn-sil" style="background: #f59e0b; color: black;">Stok Bildir</button>
+                                                    </form>
+                                                }
+                                                else
+                                                {
+                                                    <span style="color: #666; font-size: 0.8rem; font-style: italic;">Sorun Yok</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <p>Henüz malzeme kaydı yok.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        @if (Model.PersonelPozisyon == "Muhasebe")
+        {
+            <!-- Tarih Filtresi -->
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <form method="get" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+                    <div class="edit-form-group" style="margin-bottom:0; flex:1; min-width:200px;">
+                        <label style="font-size: 0.8rem; color: #a0a0a0;">Başlangıç Tarihi</label>
+                        <input type="date" name="BaslangicTarihi" value="@(Model.BaslangicTarihi?.ToString("yyyy-MM-dd"))" />
+                    </div>
+                    <div class="edit-form-group" style="margin-bottom:0; flex:1; min-width:200px;">
+                        <label style="font-size: 0.8rem; color: #a0a0a0;">Bitiş Tarihi</label>
+                        <input type="date" name="BitisTarihi" value="@(Model.BitisTarihi?.ToString("yyyy-MM-dd"))" />
+                    </div>
+                    <button type="submit" class="edit-submit-btn" style="width: auto; padding: 0.6rem 1.5rem; margin-top: 0;">Filtrele</button>
+                    <a href="/PersonelPanel" class="action-btn btn-sil" style="padding: 0.6rem 1.5rem; text-decoration: none; text-align: center;">Sıfırla</a>
+                </form>
+            </div>
+
+            <!-- Finansal Ozet Sekmesi -->
+            <div id="finans" class="tab-content active">
+                <div class="card">
+                    <h3>Finansal Özet Detayları</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+                        <div style="background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                            <h4 style="color: #a0a0a0; font-size: 0.9rem; margin-bottom: 1rem;">Gelir Dağılımı</h4>
+                            <div class="detail-row">
+                                <span class="detail-label">Servis Ödemeleri</span>
+                                <span class="detail-value">@Model.MuhasebeOzet.ToplamGelir.ToString("C2")</span>
+                            </div>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                            <h4 style="color: #a0a0a0; font-size: 0.9rem; margin-bottom: 1rem;">Gider Dağılımı</h4>
+                            <div class="detail-row">
+                                <span class="detail-label">Personel Maaşları</span>
+                                <span class="detail-value">@Model.MuhasebeOzet.ToplamGiderMaas.ToString("C2")</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Parça Maliyetleri (Alış)</span>
+                                <span class="detail-value">@Model.MuhasebeOzet.ToplamGiderParca.ToString("C2")</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Ekstra Giderler</span>
+                                <span class="detail-value" style="color: #ef4444;">- @Model.MuhasebeOzet.ToplamEkstraGider.ToString("C2")</span>
+                            </div>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px; border: 3px solid @(Model.MuhasebeOzet.NetKar >= 0 ? "#22c55e" : "#ef4444");">
+                            <h4 style="color: #a0a0a0; font-size: 0.9rem; margin-bottom: 1rem;">Net Kâr / Zarar</h4>
+                            <div style="font-size: 2rem; font-weight: 800; color: @(Model.MuhasebeOzet.NetKar >= 0 ? "#22c55e" : "#ef4444");">
+                                @Model.MuhasebeOzet.NetKar.ToString("C2")
+                            </div>
+                            <small style="color: #666; display: block; margin-top: 0.5rem;">Seçili tarih aralığı için toplam sonuç.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bekleyen Odemeler Sekmesi -->
+            <div id="bekleyen_odemeler" class="tab-content">
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                        <h3>Ödeme Bekleyen Servisler</h3>
+                        <span class="badge badge-sayisi" style="background:#f59e0b; color:black;">@Model.BekleyenOdemeler.Count Adet</span>
+                    </div>
+                    @if (Model.BekleyenOdemeler.Any())
+                    {
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Müşteri / Araç</th>
+                                        <th>Toplam Tutar</th>
+                                        <th>Kalan Ödeme</th>
+                                        <th>Giriş Tarihi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var s in Model.BekleyenOdemeler)
+                                    {
+                                        var toplam = s.IscilikTutari + s.ParcaTutari;
+                                        var odenen = s.Odemeler.Sum(o => o.OdenenTutar);
+                                        var kalan = toplam - odenen;
+                                        <tr>
+                                            <td>#@s.Id</td>
+                                            <td>
+                                                <div style="font-weight:600;">@(s.Randevu?.Arac?.Musteri?.AdSoyad ?? "Bilinmiyor")</div>
+                                                <small style="color:#aaa;">@(s.Randevu?.Arac?.Plaka ?? "-")</small>
+                                            </td>
+                                            <td>@toplam.ToString("C2")</td>
+                                            <td style="color:#ef4444; font-weight:700;">@kalan.ToString("C2")</td>
+                                            <td>
+                                                <button type="button" class="action-btn btn-devam" onclick="openOdemeModal(@s.Id, '@(s.Randevu?.Arac?.Plaka)', @kalan.ToString("F2", System.Globalization.CultureInfo.InvariantCulture))">Ödeme Al</button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">Ödemesi eksik tamamlanmış servis bulunamadı.</div>
+                    }
+                </div>
+            </div>
+
+            <!-- Ekstra Giderler Sekmesi -->
+            <div id="ekstra_giderler" class="tab-content">
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                        <h3>Ekstra Gider Kayıtları</h3>
+                        <button type="button" class="action-btn btn-devam" onclick="document.getElementById('giderEkleOverlay').classList.add('show')">Yeni Gider Ekle</button>
+                    </div>
+                    @if (Model.EkstraGiderler.Any())
+                    {
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Tarih</th>
+                                        <th>Kategori</th>
+                                        <th>Açıklama</th>
+                                        <th>Tutar</th>
+                                        <th>İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var g in Model.EkstraGiderler)
+                                    {
+                                        <tr>
+                                            <td>@g.Tarih.ToString("dd.MM.yyyy")</td>
+                                            <td><span class="badge" style="background:rgba(255,255,255,0.1);">@g.Kategori</span></td>
+                                            <td>@g.Aciklama</td>
+                                            <td style="color:#ef4444; font-weight:700;">@g.Tutar.ToString("C2")</td>
+                                            <td>
+                                                <form method="post" asp-page-handler="EkstraGiderSil">
+                                                    <input type="hidden" name="id" value="@g.Id" />
+                                                    <button type="submit" class="action-btn btn-sil">Sil</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">Bu tarih aralığında ekstra gider bulunamadı.</div>
+                    }
+                </div>
+            </div>
+
+            <!-- Odemeler Sekmesi -->
+            <div id="odemeler" class="tab-content">
+                <div class="card">
+                    <h3>Müşteri Ödemeleri</h3>
+                    @if (Model.MuhasebeOdemeler.Any())
+                    {
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Müşteri / Araç</th>
+                                        <th>Tutar</th>
+                                        <th>Tip</th>
+                                        <th>Tarih</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var odeme in Model.MuhasebeOdemeler)
+                                    {
+                                        <tr>
+                                            <td>#@odeme.Id</td>
+                                            <td>
+                                                <div style="font-weight:600;">@(odeme.ServisKaydi?.Randevu?.Arac?.Musteri?.AdSoyad ?? "Bilinmiyor")</div>
+                                                <small style="color:#aaa;">@(odeme.ServisKaydi?.Randevu?.Arac?.Plaka ?? "-")</small>
+                                            </td>
+                                            <td style="color:#22c55e; font-weight:700;">@odeme.OdenenTutar.ToString("C2")</td>
+                                            <td><span class="badge" style="background:rgba(255,255,255,0.1);">@odeme.OdemeTipi</span></td>
+                                            <td>@odeme.OdemeTarihi.ToString("dd.MM.yyyy HH:mm")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">Henüz ödeme kaydı bulunamadı.</div>
+                    }
+                </div>
+            </div>
+
+            <!-- Personel Giderleri Sekmesi -->
+            <div id="personeller_tab" class="tab-content">
+                <div class="card">
+                    <h3>Personel Maaş ve Gider Listesi</h3>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Personel</th>
+                                    <th>Pozisyon</th>
+                                    <th>Maaş</th>
+                                    <th>Durum</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var p in Model.MuhasebePersoneller)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div style="font-weight:600;">@p.ad @p.soyad</div>
+                                            <small style="color:#aaa;">@p.telefon</small>
+                                        </td>
+                                        <td><span class="badge badge-kontrol">@p.pozisyon</span></td>
+                                        <td style="font-weight:700;">@(p.maas?.ToString("C2") ?? "Belirtilmemiş")</td>
+                                        <td>
+                                            <span class="badge" style="background:@(p.durum == "Aktif" ? "rgba(34,197,94,0.15)" : "rgba(239,68,68,0.15)"); color:@(p.durum == "Aktif" ? "#22c55e" : "#ef4444");">
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Servis Kayıtlarım (Usta) -->
+        @if (Model.PersonelPozisyon == "Usta")
+        {
+            <div id="servis" class="tab-content">
+                <div class="card">
+                    <h3>Servis Kayıtlarım ve İstatistikler</h3>
+                    @if (Model.ServisKayitlari.Any())
+                    {
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Araç</th>
+                                        <th>Başlangıç</th>
+                                        <th>İşçilik / Parça</th>
+                                        <th>Durum</th>
+                                        <th>İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var sk in Model.ServisKayitlari)
+                                    {
+                                        <tr>
+                                            <td>#@sk.Id</td>
+                                            <td><strong>@sk.Randevu?.Arac?.Plaka</strong></td>
+                                            <td>@sk.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                                            <td>@sk.IscilikTutari.ToString("C2") / @sk.ParcaTutari.ToString("C2")</td>
+                                            <td><span class="badge badge-devam">@sk.Durum</span></td>
+                                            <td>
+                                                @if (sk.Durum == "DevamEdiyor")
+                                                {
+                                                    <button type="button" class="action-btn btn-devam" onclick="openParcaEkleModal(@sk.Id, '@sk.Randevu?.Arac?.Plaka')">Parça Ekle</button>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">Henüz bir servis kaydınız bulunmuyor.</div>
+                    }
+                </div>
+            </div>
+        }
+
+    </div> <!-- panel-container end -->
+
+    <!-- Gider Ekle Modal (Muhasebe) -->
+    <div class="detail-overlay" id="giderEkleOverlay" onclick="closeGiderEkleModal(event)">
+        <div class="detail-modal">
+            <button class="modal-close" onclick="document.getElementById('giderEkleOverlay').classList.remove('show')">&times;</button>
+            <div class="modal-title">Yeni Gider Kaydı</div>
+            <form method="post" asp-page-handler="EkstraGiderEkle">
+                <div class="edit-form-group">
+                    <label>Kategori</label>
+                    <select name="kategori" required style="width:100%; padding:0.8rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:white; border-radius:8px;">
+                        <option value="Kira">Kira</option>
+                        <option value="Elektrik">Elektrik</option>
+                        <option value="Su/Doğalgaz">Su/Doğalgaz</option>
+                        <option value="Yemek/Mutfak">Yemek/Mutfak</option>
+                        <option value="Reklam">Reklam</option>
+                        <option value="Diğer">Diğer</option>
+                    </select>
+                </div>
+                <div class="edit-form-group">
+                    <label>Tutar (₺)</label>
+                    <input type="number" step="0.01" name="tutar" required />
+                </div>
+                <div class="edit-form-group">
+                    <label>Tarih</label>
+                    <input type="date" name="tarih" value="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+                </div>
+                <div class="edit-form-group">
+                    <label>Açıklama</label>
+                    <textarea name="aciklama" style="width:100%; padding:0.8rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:white; border-radius:8px;"></textarea>
+                </div>
+                <button type="submit" class="edit-submit-btn">✅ Gideri Kaydet</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="detail-overlay" id="detailOverlay" onclick="closeDetail(event)">
+        <div class="detail-modal" id="detailModal">
+            <button class="modal-close"
+                onclick="document.getElementById('detailOverlay').classList.remove('show')">&times;</button>
+            <div class="modal-title" id="modalTitle">Detay</div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Edit Modal (Usta Kontrol) -->
+    <div class="detail-overlay" id="editOverlay" onclick="closeEditModal(event)">
+        <div class="detail-modal" id="editModal">
+            <button class="modal-close" onclick="document.getElementById('editOverlay').classList.remove('show')">&times;</button>
+            <div class="modal-title">Araç Kontrol & Düzenle</div>
+            <form method="post" asp-page-handler="AracDuzenleVeBasla">
+                <input type="hidden" name="randevuId" id="editRandevuId" />
+                <div class="edit-form-group">
+                    <label>Kilometre</label>
+                    <input type="number" name="km" id="editKm" placeholder="Aracın güncel km" />
+                </div>
+                <div class="edit-form-group">
+                    <label>Şasi Numarası</label>
+                    <input type="text" name="sasiNo" id="editSasiNo" placeholder="Şasi numarası" />
+                </div>
+                <div class="edit-form-group">
+                    <label>Model Yılı</label>
+                    <input type="number" name="yil" id="editYil" placeholder="Ör: 2024" />
+                </div>
+                <div class="edit-form-group" style="margin-top: 1rem;">
+                    <label>Servis İhtiyaçları</label>
+                    <div class="checkbox-group" id="editIhtiyaclar">
+                        <label class="checkbox-item"><input type="checkbox" name="ihtiyaclar" value="Yağ Değişimi"> Yağ Değişimi</label>
+                        <label class="checkbox-item"><input type="checkbox" name="ihtiyaclar" value="Fren Kontrolü"> Fren Kontrolü</label>
+                        <label class="checkbox-item"><input type="checkbox" name="ihtiyaclar" value="Lastik Değişimi"> Lastik Değişimi</label>
+                        <label class="checkbox-item"><input type="checkbox" name="ihtiyaclar" value="Akü Kontrolü"> Akü Kontrolü</label>
+                        <label class="checkbox-item"><input type="checkbox" name="ihtiyaclar" value="Filtre Değişimi"> Filtre Değişimi</label>
+                        <label class="checkbox-item"><input type="checkbox" name="ihtiyaclar" value="Balata Değişimi"> Balata Değişimi</label>
+                        <label class="checkbox-item"><input type="checkbox" name="ihtiyaclar" value="Rot Balans"> Rot Balans</label>
+                        <label class="checkbox-item"><input type="checkbox" name="ihtiyaclar" value="Motor Arıza"> Motor Arıza</label>
+                        <label class="checkbox-item"><input type="checkbox" name="ihtiyaclar" value="Klima Bakımı"> Klima Bakımı</label>
+                        <label class="checkbox-item"><input type="checkbox" name="ihtiyaclar" value="Genel Bakım"> Genel Bakım</label>
+                    </div>
+                </div>
+                <button type="submit" class="edit-submit-btn">✅ Kaydet ve İşe Başla</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Stok Edit Modal (Depocu) -->
+    <div class="detail-overlay" id="stokEditOverlay" onclick="closeStokEditModal(event)">
+        <div class="detail-modal">
+            <button class="modal-close" onclick="document.getElementById('stokEditOverlay').classList.remove('show')">&times;</button>
+            <div class="modal-title">Malzeme Düzenle</div>
+            <form method="post" asp-page-handler="ParcaDuzenle">
+                <input type="hidden" name="parcaId" id="editStokId" />
+                <div class="edit-form-group">
+                    <label>Malzeme Adı</label>
+                    <input type="text" name="parcaAdi" id="editStokAd" required />
+                </div>
+                <div class="edit-form-group">
+                    <label>Alış Fiyatı (₺)</label>
+                    <input type="number" step="0.01" name="alisFiyat" id="editStokAlis" required />
+                </div>
+                <div class="edit-form-group">
+                    <label>Birim Fiyat (₺)</label>
+                    <input type="number" step="0.01" name="birimFiyat" id="editStokBirim" required />
+                </div>
+                <div class="edit-form-group">
+                    <label>Stok Miktarı</label>
+                    <input type="number" name="stok" id="editStokMiktar" required />
+                </div>
+                <!-- Pozisyon Seçimi (YENİ) -->
+                <div class="edit-form-group" style="margin-top: 1rem;">
+                    <label>İlgili Pozisyonlar (Araçla İlgilenenler)</label>
+                    <div class="checkbox-group" id="stokEditPozisyonlar" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">
+                        <label class="checkbox-item"><input type="checkbox" name="pozisyonlar" value="Usta"> Usta</label>
+                        <label class="checkbox-item"><input type="checkbox" name="pozisyonlar" value="Mekanik"> Mekanik</label>
+                        <label class="checkbox-item"><input type="checkbox" name="pozisyonlar" value="Elektrikçi"> Elektrikçi</label>
+                        <label class="checkbox-item"><input type="checkbox" name="pozisyonlar" value="Kaportacı"> Kaportacı</label>
+                        <label class="checkbox-item"><input type="checkbox" name="pozisyonlar" value="Boyacı"> Boyacı</label>
+                    </div>
+                </div>
+                <button type="submit" class="edit-submit-btn">✅ Güncelle</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tahsilat (Odeme) Modal -->
+    <div class="detail-overlay" id="odemeOverlay" onclick="closeOdemeModal(event)">
+        <div class="detail-modal">
+            <button class="modal-close" onclick="document.getElementById('odemeOverlay').classList.remove('show')">&times;</button>
+            <div class="modal-title" id="odemeModalTitle">Tahsilat Girişi</div>
+            <form method="post" asp-page-handler="OdemeEkle">
+                <input type="hidden" name="servisId" id="odemeServisId" />
+                <div class="edit-form-group">
+                    <label>Ödeme Tutarı (₺)</label>
+                    <input type="number" step="0.01" name="tutar" id="odemeTutar" required />
+                </div>
+                <div class="edit-form-group">
+                    <label>Ödeme Tipi</label>
+                    <select name="tip" class="stok-select" style="width:100%;">
+                        <option value="Nakit">Nakit</option>
+                        <option value="Kredi Kartı">Kredi Kartı</option>
+                        <option value="Havale/EFT">Havale/EFT</option>
+                    </select>
+                </div>
+                <button type="submit" class="edit-submit-btn">💰 Ödemeyi Kaydet</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Parca Ekle Modal -->
+    <div class="detail-overlay" id="parcaEkleOverlay" onclick="closeParcaEkleModal(event)">
+        <div class="detail-modal">
+            <button class="modal-close" onclick="document.getElementById('parcaEkleOverlay').classList.remove('show')">&times;</button>
+            <div class="modal-title" id="parcaEkleTitle">Servis Parça Ekleme</div>
+            <form method="post" asp-page-handler="ServisParcaEkle">
+                <input type="hidden" name="servisId" id="parcaEkleServisId" />
+                <div class="edit-form-group">
+                    <label>Kullanılan Malzeme</label>
+                    <select name="parcaId" class="stok-select" style="width:100%;" required>
+                        <option value="">-- Malzeme Seçin --</option>
+                        @foreach (var p in Model.Parcalar.Where(p => p.Stok > 0))
+                        {
+                            <option value="@p.ParcaID">@p.ParcaAdi (Stok: @p.Stok) - @p.BirimFiyat.ToString("C2")</option>
+                        }
+                    </select>
+                </div>
+                <div class="edit-form-group">
+                    <label>Adet</label>
+                    <input type="number" name="adet" value="1" min="1" required />
+                </div>
+                <button type="submit" class="edit-submit-btn">🔧 Parçayı Kaydet (Stoktan Düş)</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // === Stok Filtreleme ===
+        function filterStokTable() {
+            const input = document.getElementById('stokSearchInput');
+            const filter = input.value.toLocaleLowerCase('tr-TR');
+            const table = document.querySelector('#stok table');
+            const tr = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < tr.length; i++) {
+                const td = tr[i].getElementsByTagName('td')[1]; // Malzeme Adı kolonu
+                if (td) {
+                    const txtValue = td.textContent || td.innerText;
+                    if (txtValue.toLocaleLowerCase('tr-TR').indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        // === Edit Modal (Usta) ===
+        function openEditModal(randevuId, km, sasiNo, yil, ihtiyaclar) {
+            document.getElementById('editRandevuId').value = randevuId;
+            document.getElementById('editKm').value = (km !== '' && km !== undefined) ? km : '';
+            document.getElementById('editSasiNo').value = sasiNo || '';
+            document.getElementById('editYil').value = (yil !== '' && yil !== undefined) ? yil : '';
+            
+            // Checkbox'lari temizle ve doldur
+            const checkBoxes = document.querySelectorAll('#editIhtiyaclar input[type="checkbox"]');
+            checkBoxes.forEach(cb => cb.checked = false);
+            
+            if (ihtiyaclar) {
+                const parts = ihtiyaclar.split(',');
+                checkBoxes.forEach(cb => {
+                    if (parts.includes(cb.value)) {
+                        cb.checked = true;
+                    }
+                });
+            }
+
+            document.getElementById('editOverlay').classList.add('show');
+        }
+
+        function closeEditModal(e) {
+            if (e.target === document.getElementById('editOverlay')) {
+                e.target.classList.remove('show');
+            }
+        }
+
+        function showTab(tabName, event) {
+            // Tum icerikleri gizle
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            // Tum butonları inaktif yap
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            // Secili icerigi goster
+            const selectedTab = document.getElementById(tabName);
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+
+            // Tiklanan butonu aktif yap
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
+        }
+
+        // === Detail Modal ===
+        function getBadgeHtml(durum) {
+            if (durum === 'Bekliyor') return '<span class="badge badge-bekliyor">Bekliyor</span>';
+            if (durum === 'Onaylandi') return '<span class="badge badge-onaylandi">Onaylandi</span>';
+            if (durum === 'DevamEdiyor') return '<span class="badge badge-devam">Devam Ediyor</span>';
+            if (durum === 'Kontrol') return '<span class="badge badge-kontrol">Kontrol</span>';
+            return '<span class="badge badge-tamamlandi">Tamamlandi</span>';
+        }
+
+        function showRandevuDetail(row) {
+            const data = row.dataset;
+            document.getElementById('modalTitle').textContent = 'Randevu Detayi — #' + data.id;
+            document.getElementById('modalBody').innerHTML = `
+                <div class="detail-row">
+                    <span class="detail-label">Musteri</span>
+                    <span class="detail-value">${data.musteri || '-'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Plaka</span>
+                    <span class="detail-value" style="color:#f59e0b;font-weight:700;">${data.plaka || '-'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Marka / Model</span>
+                    <span class="detail-value">${data.marka || '-'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Giris Tarihi</span>
+                    <span class="detail-value">${data.tarih || '-'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Cikis Tarihi</span>
+                    <span class="detail-value">${data.cikis || '-'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Durum</span>
+                    <span class="detail-value">${getBadgeHtml(data.durum)}</span>
+                </div>
+                <div class="detail-row" style="flex-direction: column; align-items: flex-start;">
+                    <span class="detail-label">Tespit Edilen İhtiyaçlar</span>
+                    <div class="needs-container" style="width: 100%; margin-top: 0.5rem; justify-content: flex-start;">
+                        ${data.ihtiyaclar ? data.ihtiyaclar.split(',').map(n => `<span class="need-tag">${n}</span>`).join('') : '<span style="color:#666; font-size:0.85rem; font-style:italic;">Belirtilmedi</span>'}
+                    </div>
+                </div>
+                ${'@Model.PersonelPozisyon' === 'Danışman' ? `
+                <div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,0.1);">
+                    <h4 style="margin-bottom:1rem; font-size:0.9rem; color:#a0a0a0;">İşçilik Ücreti Belirle (Danışman)</h4>
+                    <form method="post" asp-page-handler="IscilikGuncelle" style="display:flex; gap:0.5rem;">
+                        <input type="hidden" name="servisId" value="${data.servisId || '0'}" />
+                        <input type="number" name="iscilik" value="${data.iscilik || '0'}" step="0.01" style="flex:1; padding:0.6rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:white; border-radius:8px;" />
+                        <button type="submit" class="action-btn btn-devam" style="margin-top:0;">Güncelle</button>
+                    </form>
+                </div>` : ''}
+            `;
+            document.getElementById('detailOverlay').classList.add('show');
+        }
+
+        function showServisDetail(row) {
+            const data = row.dataset;
+            document.getElementById('modalTitle').textContent = 'Servis Kaydı — #' + data.id;
+            document.getElementById('modalBody').innerHTML = `
+                <div class="detail-row">
+                    <span class="detail-label">Arac (Plaka)</span>
+                    <span class="detail-value" style="color:#f59e0b;font-weight:700;">${data.plaka || '-'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Iscilik Tutari</span>
+                    <span class="detail-value">${data.iscilik || '-'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Parca Tutari</span>
+                    <span class="detail-value">${data.parca || '-'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Durum</span>
+                    <span class="detail-value">${getBadgeHtml(data.durum)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Tarih</span>
+                    <span class="detail-value">${data.tarih || '-'}</span>
+                </div>
+                ${'@Model.PersonelPozisyon' === 'Danışman' ? `
+                <div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,0.1);">
+                    <h4 style="margin-bottom:1rem; font-size:0.9rem; color:#a0a0a0;">İşçilik Ücreti Belirle (Danışman)</h4>
+                    <form method="post" asp-page-handler="IscilikGuncelle" style="display:flex; gap:0.5rem;">
+                        <input type="hidden" name="servisId" value="${data.servisId || '0'}" />
+                        <input type="number" name="iscilik" value="${data.iscilik || '0'}" step="0.01" style="flex:1; padding:0.6rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:white; border-radius:8px;" />
+                        <button type="submit" class="action-btn btn-devam" style="margin-top:0;">Güncelle</button>
+                    </form>
+                </div>` : ''}
+            `;
+            document.getElementById('detailOverlay').classList.add('show');
+        }
+
+        function closeDetail(e) {
+            if (e.target === document.getElementById('detailOverlay')) {
+                e.target.classList.remove('show');
+            }
+        }
+
+        // ESC ile kapat
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                document.getElementById('detailOverlay').classList.remove('show');
+                document.getElementById('editOverlay').classList.remove('show');
+                document.getElementById('randevuEditOverlay').classList.remove('show');
+            }
+        });
+
+        function randevuSilOnayi(randevuId) {
+            Swal.fire({
+                title: 'Emin misiniz?',
+                text: "Bu randevu kalici olarak silinecek!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Evet, Sil!',
+                cancelButtonText: 'Vazgec',
+                background: '#1e1e1e',
+                color: '#fff',
+                iconColor: '#f59e0b'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('randevuSilForm-' + randevuId).submit();
+                }
+            });
+        }
+
+        // === Randevu Edit Modal ===
+        function openRandevuEditModal(id, musteri, plaka, marka, model, tarih) {
+            document.getElementById('randevuEditId').value = id;
+            document.getElementById('randevuEditMusteri').value = musteri;
+            document.getElementById('randevuEditPlaka').value = plaka;
+            document.getElementById('randevuEditMarka').value = marka;
+            document.getElementById('randevuEditModel').value = model;
+            document.getElementById('randevuEditTarih').value = tarih;
+            document.getElementById('randevuEditOverlay').classList.add('show');
+        }
+
+        function closeRandevuEditModal(e) {
+            if (e.target === document.getElementById('randevuEditOverlay')) {
+                e.target.classList.remove('show');
+            }
+        }
+
+        // Stok Düzenle Modal Aç
+        function openStokEditModal(id, ad, alis, birim, stok, pozisyonlar) {
+            document.getElementById('editStokId').value = id;
+            document.getElementById('editStokAd').value = ad;
+            document.getElementById('editStokAlis').value = alis;
+            document.getElementById('editStokBirim').value = birim;
+            document.getElementById('editStokMiktar').value = stok;
+
+            // Checkbox'lari temizle ve doldur
+            const checkBoxes = document.querySelectorAll('#stokEditPozisyonlar input[type="checkbox"]');
+            checkBoxes.forEach(cb => cb.checked = false);
+
+            if (pozisyonlar) {
+                const parts = pozisyonlar.split(',');
+                checkBoxes.forEach(cb => {
+                    if (parts.includes(cb.value)) {
+                        cb.checked = true;
+                    }
+                });
+            }
+
+            document.getElementById('stokEditOverlay').classList.add('show');
+        }
+
+        function closeStokEditModal(e) {
+            if (e.target === document.getElementById('stokEditOverlay')) {
+                e.target.classList.remove('show');
+            }
+        }
+
+        function parcaSilOnayi(parcaId) {
+            Swal.fire({
+                title: 'Emin misiniz?',
+                text: "Bu malzeme kalici olarak silinecek!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Evet, Sil!',
+                cancelButtonText: 'Vazgec',
+                background: '#1e1e1e',
+                color: '#fff',
+                iconColor: '#f59e0b'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('parcaSilForm-' + parcaId).submit();
+                }
+            });
+        }
+ 
+        // === Bildirim Paneli ===
+        function toggleNotifications() {
+            const panel = document.getElementById('notificationPanel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Tıklama dışı kapama
+        window.onclick = function(event) {
+            if (!event.target.matches('span') && !event.target.closest('#notificationPanel')) {
+                const panel = document.getElementById('notificationPanel');
+                if (panel) panel.style.display = 'none';
+            }
+        }
+        function closeGiderEkleModal(e) {
+            if (e.target === document.getElementById('giderEkleOverlay')) {
+                e.target.classList.remove('show');
+            }
+        }
+
+        // === Odeme Modal ===
+        function openOdemeModal(servisId, plaka, kalan) {
+            document.getElementById('odemeServisId').value = servisId;
+            document.getElementById('odemeModalTitle').innerText = plaka + ' — Kalan: ₺' + kalan;
+            document.getElementById('odemeTutar').value = kalan;
+            document.getElementById('odemeOverlay').classList.add('show');
+        }
+        function closeOdemeModal(e) {
+            if (e.target === document.getElementById('odemeOverlay')) {
+                e.target.classList.remove('show');
+            }
+        }
+
+        // === Parca Ekle Modal ===
+        function openParcaEkleModal(servisId, plaka) {
+            document.getElementById('parcaEkleServisId').value = servisId;
+            document.getElementById('parcaEkleTitle').innerText = plaka + ' — Parça Ekle';
+            document.getElementById('parcaEkleOverlay').classList.add('show');
+        }
+        function closeParcaEkleModal(e) {
+            if (e.target === document.getElementById('parcaEkleOverlay')) {
+                e.target.classList.remove('show');
+            }
+        }
+    </script>
+
+</body>
+
+</html>

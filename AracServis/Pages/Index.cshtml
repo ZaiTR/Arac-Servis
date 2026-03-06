@@ -1,0 +1,333 @@
+@page
+@model AracServis.Pages.IndexModel
+@{
+    Layout = null; // Beyaz menüyü tamamen kaldırır
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Araç Servis & Randevu Sistemi</title>
+    <link rel="stylesheet" href="~/css/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    
+    <header>
+        <h1><i class="fas fa-car-side"></i> AutoServis</h1>
+        <nav>
+            <a href="/" class="active">Ana Sayfa</a>
+            <a href="#appointment">Randevu Al</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h2>Aracınız İçin <br>Profesyonel Bakım</h2>
+                <p>Güvenilir, hızlı ve garantili araç servis hizmetleri.</p>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <a href="#appointment" class="cta-button">Hemen Randevu Al</a>
+                    <a href="#sorgula" class="cta-button" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3);">Randevu Sorgula</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Randevu Sorgulama -->
+        <section id="sorgula" style="padding: 4rem 1.5rem; background: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.05);">
+            <div style="max-width: 600px; margin: 0 auto; text-align: center;">
+                <h2 style="font-family: 'Poppins', sans-serif; color: #f59e0b; margin-bottom: 1rem;">Randevu Durum Sorgulama</h2>
+                <p style="color: #a0a0a0; margin-bottom: 2rem;">Aracınızın servis durumunu öğrenmek için plakanızı giriniz.</p>
+                
+                <div style="display: flex; gap: 0.5rem; background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                    <input type="text" id="sorguPlaka" placeholder="34 ABC 123" style="flex: 1; background: transparent; border: none; color: white; padding: 0.8rem; outline: none; text-transform: uppercase; font-weight: 600;">
+                    <button type="button" onclick="sorgula()" style="background: #f59e0b; color: #000; border: none; padding: 0.8rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.3s;">SORGULA</button>
+                </div>
+
+                <div id="sorguSonuc" style="margin-top: 2rem; display: none; text-align: left; background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.2);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">
+                        <span style="color: #888;">Plaka</span>
+                        <strong id="resPlaka" style="color: #f59e0b;"></strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">
+                        <span style="color: #888;">Giriş Tarihi</span>
+                        <span id="resTarih"></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">
+                        <span style="color: #888;">Mevcut Durum</span>
+                        <span id="resDurumBadge" class="badge"></span>
+                    </div>
+                    <div id="resIhtiyaclarGroup" style="display: none;">
+                        <span style="color: #888; font-size: 0.8rem;">Yapılan İşlemler / İhtiyaçlar:</span>
+                        <p id="resIhtiyaclar" style="color: #ccc; margin-top: 0.5rem; font-size: 0.9rem; line-height: 1.4;"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="appointment" class="appointment-section">
+            <div class="form-container">
+                <h2>Randevu Oluştur</h2>
+                <form id="randevuForm" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="form-group">
+                        <label for="adSoyad">Ad Soyad</label>
+                        <input type="text" id="adSoyad" name="adSoyad" placeholder="Adınız Soyadınız" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tel">Telefon</label>
+                        <input type="tel" id="tel" name="tel" placeholder="0555 555 55 55" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="plaka">Plaka</label>
+                        <input type="text" id="plaka" name="plaka" placeholder="34 ABC 123" required
+                            style="text-transform: uppercase;">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="servisTuru">Servis Türü</label>
+                        <select id="servisTuru" name="servisTuru">
+                            <option value="Periyodik Bakım">Periyodik Bakım</option>
+                            <option value="Yağ Değişimi">Yağ Değişimi</option>
+                            <option value="Fren Kontrolü">Fren Kontrolü</option>
+                            <option value="Arıza Tespit">Arıza Tespit</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tarih">Randevu Tarihi</label>
+                        <input type="date" id="tarih" name="tarih" required>
+                    </div>
+
+                    <!-- Saat Slotu Secimi -->
+                    <div class="form-group" id="saatContainer" style="display:none;">
+                        <label>Randevu Saati</label>
+                        <div id="saatSlotlari" style="display:flex; gap:10px; margin-top:8px;"></div>
+                        <input type="hidden" id="saat" name="saat" required>
+                        <p id="slotBilgi" style="color:#a0a0a0; font-size:0.8rem; margin-top:6px;"></p>
+                    </div>
+
+                    <button type="submit" class="cta-button" id="submitBtn">Randevu Al</button>
+                    <p id="mesaj"></p>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <style>
+        .saat-btn {
+            flex: 1;
+            padding: 12px 8px;
+            border: 2px solid #333;
+            border-radius: 10px;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .saat-btn:hover:not(.dolu) {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .saat-btn.secili {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.2);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+            color: #f59e0b;
+        }
+
+        .saat-btn.dolu {
+            border-color: #333;
+            background: #111;
+            color: #555;
+            cursor: not-allowed;
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+
+        /* Status badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .badge-bekliyor { background: rgba(234, 179, 8, 0.15); color: #eab308; border: 1px solid rgba(234, 179, 8, 0.3); }
+        .badge-devam { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-devamediyor { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-tamamlandi { background: rgba(34, 197, 94, 0.15); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .badge-onaylandi { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-kontrol { background: rgba(168, 85, 247, 0.15); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.3); }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/site.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tarihInput = document.getElementById('tarih');
+            const saatContainer = document.getElementById('saatContainer');
+            const saatSlotlari = document.getElementById('saatSlotlari');
+            const saatInput = document.getElementById('saat');
+            const slotBilgi = document.getElementById('slotBilgi');
+            const form = document.getElementById('randevuForm');
+
+            // Gecmis tarihleri engelle - min tarihi bugune ayarla
+            const bugun = new Date();
+            const yil = bugun.getFullYear();
+            const ay = String(bugun.getMonth() + 1).padStart(2, '0');
+            const gun = String(bugun.getDate()).padStart(2, '0');
+            tarihInput.setAttribute('min', `${yil}-${ay}-${gun}`);
+
+            // Tarih seciliginde saat slotlarini getir
+            tarihInput.addEventListener('change', async function () {
+                const secilenTarih = this.value;
+                if (!secilenTarih) {
+                    saatContainer.style.display = 'none';
+                    return;
+                }
+
+                // AJAX ile dolu slotlari getir
+                try {
+                    const response = await fetch(`/?handler=DoluSlotlar&tarih=${secilenTarih}`);
+                    const data = await response.json();
+
+                    saatSlotlari.innerHTML = '';
+                    saatInput.value = '';
+                    saatContainer.style.display = 'block';
+
+                    if (data.toplamRandevu >= 3) {
+                        slotBilgi.textContent = 'Bu gün için tüm randevu saatleri dolu!';
+                        slotBilgi.style.color = '#ef4444';
+                        return;
+                    }
+
+                    let boslotVar = false;
+                    data.slotlar.forEach(slot => {
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'saat-btn' + (slot.dolu ? ' dolu' : '');
+                        btn.textContent = slot.saat;
+                        btn.dataset.saat = slot.saat;
+
+                        if (!slot.dolu) {
+                            boslotVar = true;
+                            btn.addEventListener('click', function () {
+                                // Onceki secimi kaldir
+                                document.querySelectorAll('.saat-btn').forEach(b => b.classList.remove('secili'));
+                                // Bu slotu sec
+                                this.classList.add('secili');
+                                saatInput.value = this.dataset.saat;
+                                slotBilgi.textContent = `Seçilen saat: ${this.dataset.saat}`;
+                                slotBilgi.style.color = '#22c55e';
+                            });
+                        }
+
+                        saatSlotlari.appendChild(btn);
+                    });
+
+                    if (!boslotVar) {
+                        slotBilgi.textContent = 'Bu gün için tüm saatler dolu!';
+                        slotBilgi.style.color = '#ef4444';
+                    } else {
+                        slotBilgi.textContent = 'Lütfen uygun bir saat seçiniz.';
+                        slotBilgi.style.color = '#a0a0a0';
+                    }
+                } catch (err) {
+                    console.error('Slot bilgisi alinamadi:', err);
+                }
+            });
+
+            // Form gonderiminde saat secili mi kontrol et
+            form.addEventListener('submit', function (e) {
+                if (!saatInput.value) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Uyarı',
+                        text: 'Lütfen bir randevu saati seçiniz!',
+                        icon: 'warning',
+                        confirmButtonText: 'Tamam',
+                        confirmButtonColor: '#f59e0b',
+                        background: '#121212',
+                        color: '#fff'
+                    });
+                }
+            });
+        });
+
+        async function sorgula() {
+            const plaka = document.getElementById('sorguPlaka').value.trim();
+            const sonucDiv = document.getElementById('sorguSonuc');
+            
+            if (!plaka) {
+                Swal.fire({ title: 'Uyarı', text: 'Lütfen plaka giriniz.', icon: 'warning', background: '#121212', color: '#fff' });
+                return;
+            }
+
+            try {
+                const response = await fetch(`/?handler=Sorgula&plaka=${plaka}`);
+                const data = await response.json();
+
+                if (data.hata) {
+                    sonucDiv.style.display = 'none';
+                    Swal.fire({ title: 'Bilgi', text: data.hata, icon: 'info', background: '#121212', color: '#fff' });
+                    return;
+                }
+
+                document.getElementById('resPlaka').textContent = data.plaka;
+                document.getElementById('resTarih').textContent = data.tarih;
+                
+                const badge = document.getElementById('resDurumBadge');
+                badge.textContent = data.durum;
+                badge.className = 'badge badge-' + data.durum.toLowerCase().replace(' ', '');
+                
+                if (data.ihtiyaclar) {
+                    document.getElementById('resIhtiyaclarGroup').style.display = 'block';
+                    document.getElementById('resIhtiyaclar').textContent = data.ihtiyaclar;
+                } else {
+                    document.getElementById('resIhtiyaclarGroup').style.display = 'none';
+                }
+
+                sonucDiv.style.display = 'block';
+                sonucDiv.scrollIntoView({ behavior: 'smooth' });
+
+            } catch (err) {
+                console.error('Sorgulama hatası:', err);
+            }
+        }
+    </script>
+
+    @if (TempData["Message"] != null)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                Swal.fire({
+                    title: '@(TempData["Status"]?.ToString() == "error" ? "Hata!" : "Başarılı!")',
+                    text: '@Html.Raw(TempData["Message"])',
+                    icon: '@(TempData["Status"]?.ToString() == "error" ? "error" : "success")',
+                    confirmButtonText: 'Tamam',
+                    confirmButtonColor: '#f59e0b',
+                    background: '#121212',
+                    color: '#fff'
+                });
+            });
+        </script>
+    }
+</body>
+
+</html>
