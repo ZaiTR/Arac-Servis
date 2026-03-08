@@ -14,28 +14,28 @@
 ## 📸 Ekran Görüntüleri
 
 ### 🏠 Ana Sayfa
-![Ana Sayfa](screenshots/anasayfa.png)
+![Ana Sayfa](screenshots/randevu.png)
 
 ### 📅 Randevu Oluşturma
-![Randevu Sayfası](screenshots/randevu.png)
+![Randevu Sayfası](screenshots/anasayfa.png)
 
 ### 👷 Personel Paneli — Danışman Görünümü
-![Personel Paneli](screenshots/personel-panel.png)
+![Personel Paneli](screenshots/usta-panel.png)
 
 ### 📦 Stok Yönetimi — Depocu Görünümü
-![Stok Yönetimi](screenshots/stok-yonetimi.png)
+![Stok Yönetimi](screenshots/mekanik-panel.png)
 
 ### 🛡️ Admin Paneli — Dashboard
 ![Admin Panel](screenshots/admin-panel.png)
 
 ### 💰 Personel Paneli — Muhasebe Görünümü
-![Muhasebe Paneli](screenshots/muhasebe-panel.png)
+![Muhasebe Paneli](screenshots/personel-panel.png)
 
 ### 🔧 Personel Paneli — Usta Görünümü
-![Usta Paneli](screenshots/usta-panel.png)
+![Usta Paneli](screenshots/stok-yonetimi.png)
 
 ### ⚙️ Personel Paneli — Mekanik Görünümü
-![Mekanik Paneli](screenshots/mekanik-panel.png)
+![Mekanik Paneli](screenshots/muhasebe-panel.png)
 
 ---
 
@@ -120,94 +120,6 @@ AracServis/
 
 ---
 
-## 🗄️ Veritabanı Şeması
-
-```mermaid
-erDiagram
-    Musteri ||--o{ Arac : sahiptir
-    Arac ||--o{ Randevu : "randevusu var"
-    Randevu ||--o| ServisKaydi : "servis kaydı"
-    ServisKaydi ||--o{ Odeme : ödemeleri
-    ServisKaydi ||--o{ ServisParca : "kullanılan parçalar"
-    ServisParca }o--|| Parca : parça
-    ServisKaydi }o--|| Personel : "sorumlu personel"
-    Bildirim }o--|| Parca : "ilgili parça"
-    Bildirim }o--|| Personel : "gönderen"
-
-    Musteri {
-        int Id PK
-        string AdSoyad
-        string Telefon
-        string EPosta
-        string Adres
-    }
-
-    Arac {
-        int Id PK
-        int MusteriId FK
-        string Plaka
-        string Marka
-        string Model
-        int Yil
-        string SasiNo
-    }
-
-    Randevu {
-        int Id PK
-        int AracId FK
-        datetime GirisTarihi
-        datetime CikisTarihi
-        int Km
-        decimal ToplamUcret
-        string Durum
-        string Ihtiyaclar
-    }
-
-    ServisKaydi {
-        int Id PK
-        int RandevuId FK
-        int PersonelId FK
-        decimal IscilikTutari
-        decimal ParcaTutari
-        string Durum
-    }
-
-    Parca {
-        int ParcaID PK
-        string ParcaAdi
-        decimal BirimFiyat
-        decimal AlisFiyat
-        int Stok
-    }
-
-    Personel {
-        int id PK
-        string ad
-        string soyad
-        string pozisyon
-        decimal maas
-        string durum
-    }
-
-    Odeme {
-        int Id PK
-        int ServisKaydiId FK
-        decimal OdenenTutar
-        string OdemeTipi
-        datetime OdemeTarihi
-    }
-
-    Bildirim {
-        int Id PK
-        int ParcaId FK
-        int GonderenPersonelId FK
-        string Mesaj
-        bool Okundu
-    }
-```
-
----
-
 ## 🚀 Kurulum
 
 ### Gereksinimler
@@ -233,7 +145,7 @@ cd AracServis
 {
   "ConnectionStrings": {
     "DefaultConnection": "Server=SUNUCU_ADINIZ;Database=ServisDB;Trusted_Connection=True;TrustServerCertificate=True;"
-  }
+  }  
 }
 ```
 
